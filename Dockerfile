@@ -60,4 +60,4 @@ ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL="file:/app/data/thinking-agents.db"
 
 # Run migrations and start
-CMD ["sh", "-c", "npx prisma db push --skip-generate && node server.js"]
+CMD ["sh", "-c", "npx prisma db push && node server.js"]
