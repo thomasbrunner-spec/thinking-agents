@@ -35,6 +35,7 @@ RUN adduser --system --uid 1001 nextjs
 # Copy necessary files
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/init-db.mjs ./init-db.mjs
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
@@ -47,7 +48,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy prisma engine and client for runtime
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Create data directory for SQLite
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
@@ -60,5 +60,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL="file:/app/data/thinking-agents.db"
 
-# Run migrations and start
-CMD ["sh", "-c", "node node_modules/prisma/build/index.js db push && node server.js"]
+# Init database and start server
+CMD ["sh", "-c", "node init-db.mjs && node server.js"]
