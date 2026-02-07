@@ -5,9 +5,9 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json ./
 COPY prisma ./prisma/
-RUN npm ci
+RUN npm install
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -18,7 +18,7 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
@@ -26,8 +26,8 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -55,9 +55,9 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-ENV DATABASE_URL "file:/app/data/thinking-agents.db"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV DATABASE_URL="file:/app/data/thinking-agents.db"
 
 # Run migrations and start
-CMD npx prisma db push --skip-generate && node server.js
+CMD ["sh", "-c", "npx prisma db push --skip-generate && node server.js"]
